@@ -1,0 +1,7 @@
+Origin: demoapp
+Label: demoapp
+Codename: bookworm
+Architectures: i386 amd64 source
+Components: main
+Description: demoapp
+

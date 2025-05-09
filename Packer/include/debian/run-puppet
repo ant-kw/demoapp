@@ -1,0 +1,8 @@
+#!/bin/bash
+
+/usr/bin/daemonize -a -l /var/run/lock/puppet.lock -p /var/run/puppet.pid \
+ /usr/local/bin/puppet apply \
+  --modulepath=/opt/puppetcode/modules:/opt/puppetcode/localmodules \
+  --hiera_config=/opt/puppetcode/hiera.yaml  \
+  /opt/puppetcode/manifests/site.pp \
+  -l /var/log/puppetlabs/puppet.log

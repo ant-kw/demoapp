@@ -1,0 +1,19 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "webide" || $CI_COMMIT_TAG'
+
+build-and-push:
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: "" # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4124
+    IMAGE_TAG: $CI_COMMIT_TAG
+    IMAGE_NAME: registry.gitlab.com/$CI_PROJECT_PATH/$CI_PROJECT_NAME
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build -t "$IMAGE_NAME:$IMAGE_TAG" .
+    - docker push "$IMAGE_NAME:$IMAGE_TAG"
+  rules:
+    - if: '$CI_COMMIT_TAG'

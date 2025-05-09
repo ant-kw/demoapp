@@ -1,0 +1,7 @@
+Origin: demoapp-puppet
+Label: demoapp-puppet
+Codename: bookworm
+Architectures: i386 amd64 source
+Components: main
+Description: demoapp-puppet
+

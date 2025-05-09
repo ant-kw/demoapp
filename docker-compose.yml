@@ -1,0 +1,84 @@
+##version: '3.8'
+
+services:
+  # Frontend Service
+  frontend:
+    image: demoapp:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+
+  # Backend Service
+  backend:
+    image: demoapp:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_USER=demoapp
+      - DB_PASSWORD=Hunter2
+      - DB_NAME=demoapp
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=demoapp
+      - RABBITMQ_PASSWORD=Hunter2
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - app-network
+
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:14-alpine
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=demoapp
+      - POSTGRES_PASSWORD=Hunter2
+      - POSTGRES_DB=demoapp
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demoapp -d demoapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ Message Broker Service
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=demoapp
+      - RABBITMQ_DEFAULT_PASS=Hunter2
+    networks:
+      - app-network
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq # Persist RabbitMQ data
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+
